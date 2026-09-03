@@ -1,0 +1,24 @@
+{
+  "name": "vizai-camera-integration-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Multi-camera integration gateway implementation.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "packageManager": "pnpm@11.19.0",
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0"
+  }
+}

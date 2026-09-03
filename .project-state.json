@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-03T14:47:00+08:00",
+  "project": {
+    "name": "vizai-camera-integration-gateway",
+    "path": "D:\\School\\Degree\\Y3S2 Internship\\Project\\VizAI\\Implement",
+    "purpose": "Guided from-zero multi-camera integration gateway implementation"
+  },
+  "git": {
+    "isRepository": false,
+    "branch": null,
+    "head": null,
+    "status": "unavailable",
+    "recentCommits": [],
+    "note": "The Implement directory and its parents are not a Git repository."
+  },
+  "currentPhase": {
+    "id": "phase-1",
+    "name": "Shared foundation",
+    "status": "complete"
+  },
+  "currentTask": {
+    "id": "step-1g",
+    "name": "Safe inventory loading and startup composition",
+    "status": "complete",
+    "completedSubtasks": [
+      {
+        "id": "step-1g-1",
+        "name": "Protect generated and local configuration files",
+        "evidence": ".gitignore excludes dependencies, build/coverage output, environment files, logs, and config/*.local.json"
+      },
+      {
+        "id": "step-1g-2",
+        "name": "Implement bounded inventory file loading",
+        "evidence": "src/config/camera-inventory-file-loader.ts enforces a one MiB limit, safe file errors, JSON parsing, and inventory validation"
+      },
+      {
+        "id": "step-1g-3",
+        "name": "Add focused inventory file-loader tests",
+        "evidence": "test/camera-inventory-file-loader.test.ts has six focused tests; related loader/inventory run passes with 2 files and 13 tests, and pnpm build passes"
+      },
+      {
+        "id": "step-1g-4",
+        "name": "Define the safe startup-registration result contract",
+        "evidence": "src/startup/camera-startup-report.ts defines registered/failed results and ready/degraded reports without provider failure details"
+      },
+      {
+        "id": "step-1g-5",
+        "name": "Coordinate independent camera registration",
+        "evidence": "src/startup/register-camera-inventory.ts attempts registrations sequentially, continues after failures, and returns safe results"
+      },
+      {
+        "id": "step-1g-6",
+        "name": "Add focused startup-registration tests",
+        "evidence": "test/register-camera-inventory.test.ts has three focused tests; related coordinator/gateway run passes with 2 files and 11 tests, and pnpm build passes"
+      },
+      {
+        "id": "step-1g-7",
+        "name": "Compose startup from an inventory file",
+        "evidence": "src/startup/start-camera-gateway-from-file.ts validates and loads the complete inventory before delegating registration"
+      },
+      {
+        "id": "step-1g-8",
+        "name": "Add focused file-to-gateway startup tests",
+        "evidence": "test/start-camera-gateway-from-file.test.ts covers four intended paths; full Phase 1 build and 14 test files with 78 tests pass"
+      }
+    ]
+  },
+  "lastCompletedCheckpoint": {
+    "id": "step-1g-8",
+    "name": "Phase 1 shared foundation complete",
+    "userConfirmedThrough": "step-1g-8",
+    "repositoryVerified": true,
+    "verifiedAt": "2026-09-03T14:47:00+08:00"
+  },
+  "nextTask": {
+    "id": "step-2a",
+    "name": "Define and validate non-secret Hikvision ISAPI provider configuration",
+    "scope": [
+      "wait for explicit Start Step 2A",
+      "define the non-secret ISAPI provider configuration contract",
+      "validate provider-owned configuration strictly",
+      "reference credentials without storing raw username or password"
+    ],
+    "excludeFromThisStep": [
+      "Digest HTTP client",
+      "live camera connection",
+      "people-counting XML parser",
+      "database",
+      "API",
+      "dashboard",
+      "shadow or physical-camera fields"
+    ]
+  },
+  "completedPhases": [
+    "phase-1-shared-foundation"
+  ],
+  "completedCheckpoints": [
+    "step-1a-project-and-registration-contract",
+    "step-1b-inventory-validation",
+    "step-1c-adapter-lifecycle",
+    "step-1d-provider-registry",
+    "step-1e-gateway-lifecycle",
+    "step-1f-1-periodic-observation-interface",
+    "step-1f-2-canonical-measurement-interface",
+    "step-1f-3-canonical-measurement-schema",
+    "step-1f-4-canonical-measurement-ajv-parser",
+    "step-1f-5-canonical-measurement-validator-tests",
+    "step-1f-6-deterministic-normalizer",
+    "step-1f-7-normalizer-tests",
+    "step-1f-8-output-publication-port",
+    "step-1f-9-in-memory-output-port",
+    "step-1f-10-in-memory-output-tests",
+    "step-1g-1-local-file-safety",
+    "step-1g-2-bounded-inventory-loader",
+    "step-1g-3-inventory-loader-tests",
+    "step-1g-4-startup-report-contract",
+    "step-1g-5-registration-coordinator",
+    "step-1g-6-registration-coordinator-tests",
+    "step-1g-7-file-to-gateway-composition",
+    "step-1g-8-startup-composition-tests"
+  ],
+  "remainingPhases": [
+    "direct Hikvision ISAPI vertical slice",
+    "TimescaleDB persistence, per-camera API, and dashboard",
+    "HikCentral provider",
+    "ONVIF capability discovery and provider",
+    "production hardening and live validation"
+  ],
+  "blockers": [],
+  "knownIssues": [
+    "Implement is not a Git repository",
+    "test TypeScript is transformed by Vitest but excluded from production tsc build",
+    "minor indentation inconsistencies exist in hand-edited TypeScript",
+    "providerConfig needs strict provider-owned schemas",
+    "application-level registration versus shutdown coordination is deferred"
+  ],
+  "pendingValidations": [
+    "non-secret Hikvision ISAPI provider configuration validation",
+    "real Hikvision ISAPI Digest connectivity",
+    "real periodic people-counting XML compatibility",
+    "database persistence",
+    "HTTP API and dashboard behaviour",
+    "HikCentral deployed API compatibility",
+    "ONVIF analytics capability",
+    "deployment and production security"
+  ],
+  "verification": {
+    "date": "2026-09-03",
+    "build": {
+      "command": "pnpm build",
+      "status": "passed"
+    },
+    "tests": {
+      "command": "pnpm test",
+      "status": "passed",
+      "filesPassed": 14,
+      "testsPassed": 78
+    },
+    "latestTargetedTests": {
+      "command": "pnpm test test/start-camera-gateway-from-file.test.ts",
+      "status": "passed",
+      "filesPassed": 1,
+      "testsPassed": 4
+    },
+    "todoScan": {
+      "status": "passed",
+      "matches": 0
+    },
+    "evidenceType": "deterministic software tests only"
+  },
+  "relevantFiles": [
+    "AGENTS.md",
+    "docs/REQUIREMENTS.md",
+    "docs/ARCHITECTURE.md",
+    "docs/DECISIONS.md",
+    "docs/ROADMAP.md",
+    "docs/implementation/PROGRESS.md",
+    "docs/implementation/HANDOFF.md",
+    ".project-state.json",
+    "src/contracts/camera-registration.ts",
+    "src/contracts/camera-registration-schema.ts",
+    "src/contracts/camera-registration-validator.ts",
+    "src/contracts/camera-inventory-validator.ts",
+    "src/adapters/camera-adapter.ts",
+    "src/adapters/adapter-provider.ts",
+    "src/adapters/adapter-registry.ts",
+    "src/core/camera-gateway.ts",
+    "src/observations/periodic-people-flow-observation.ts",
+    "src/contracts/people-flow-measurement.ts",
+    "src/contracts/people-flow-measurement-schema.ts",
+    "src/contracts/people-flow-measurement-validator.ts",
+    "test/people-flow-measurement-validator.test.ts",
+    "src/core/periodic-people-flow-normalizer.ts",
+    "test/periodic-people-flow-normalizer.test.ts",
+    "src/output/people-flow-output-port.ts",
+    "src/output/in-memory-people-flow-output-port.ts",
+    "test/in-memory-people-flow-output-port.test.ts",
+    ".gitignore",
+    "src/config/camera-inventory-file-loader.ts",
+    "test/camera-inventory-file-loader.test.ts",
+    "src/startup/camera-startup-report.ts",
+    "src/startup/register-camera-inventory.ts",
+    "test/register-camera-inventory.test.ts",
+    "src/startup/start-camera-gateway-from-file.ts",
+    "test/start-camera-gateway-from-file.test.ts"
+  ],
+  "latestVerifiedCommit": null
+}
