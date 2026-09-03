@@ -1,99 +1,70 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-09-03T14:47:00+08:00",
+  "updatedAt": "2026-09-03T16:16:00+08:00",
   "project": {
     "name": "vizai-camera-integration-gateway",
     "path": "D:\\School\\Degree\\Y3S2 Internship\\Project\\VizAI\\Implement",
     "purpose": "Guided from-zero multi-camera integration gateway implementation"
   },
   "git": {
-    "isRepository": false,
-    "branch": null,
-    "head": null,
-    "status": "unavailable",
-    "recentCommits": [],
-    "note": "The Implement directory and its parents are not a Git repository."
+    "isRepository": true,
+    "branch": "main",
+    "head": "c8501a8",
+    "status": "modified documentation/dependencies and untracked Phase 2 source/tests",
+    "recentCommits": [
+      "c8501a8 chore: initialize VizAI camera integration project"
+    ],
+    "note": "Branch main tracks origin/main. Nothing was staged or committed by the agent."
   },
   "currentPhase": {
-    "id": "phase-1",
-    "name": "Shared foundation",
-    "status": "complete"
+    "id": "phase-2",
+    "name": "Direct Hikvision ISAPI vertical slice",
+    "status": "complete_deterministic_live_pending"
   },
   "currentTask": {
-    "id": "step-1g",
-    "name": "Safe inventory loading and startup composition",
-    "status": "complete",
+    "id": "phase-2",
+    "name": "Direct Hikvision ISAPI vertical slice",
+    "status": "complete_deterministic_live_pending",
     "completedSubtasks": [
       {
-        "id": "step-1g-1",
-        "name": "Protect generated and local configuration files",
-        "evidence": ".gitignore excludes dependencies, build/coverage output, environment files, logs, and config/*.local.json"
+        "id": "step-2c-through-2i",
+        "name": "Implement the deterministic direct ISAPI software slice",
+        "evidence": "Digest transport, device-info/report clients, parser, collector, adapter/provider, fixtures and focused tests exist; full suite passes with 22 files and 120 tests"
       },
       {
-        "id": "step-1g-2",
-        "name": "Implement bounded inventory file loading",
-        "evidence": "src/config/camera-inventory-file-loader.ts enforces a one MiB limit, safe file errors, JSON parsing, and inventory validation"
-      },
-      {
-        "id": "step-1g-3",
-        "name": "Add focused inventory file-loader tests",
-        "evidence": "test/camera-inventory-file-loader.test.ts has six focused tests; related loader/inventory run passes with 2 files and 13 tests, and pnpm build passes"
-      },
-      {
-        "id": "step-1g-4",
-        "name": "Define the safe startup-registration result contract",
-        "evidence": "src/startup/camera-startup-report.ts defines registered/failed results and ready/degraded reports without provider failure details"
-      },
-      {
-        "id": "step-1g-5",
-        "name": "Coordinate independent camera registration",
-        "evidence": "src/startup/register-camera-inventory.ts attempts registrations sequentially, continues after failures, and returns safe results"
-      },
-      {
-        "id": "step-1g-6",
-        "name": "Add focused startup-registration tests",
-        "evidence": "test/register-camera-inventory.test.ts has three focused tests; related coordinator/gateway run passes with 2 files and 11 tests, and pnpm build passes"
-      },
-      {
-        "id": "step-1g-7",
-        "name": "Compose startup from an inventory file",
-        "evidence": "src/startup/start-camera-gateway-from-file.ts validates and loads the complete inventory before delegating registration"
-      },
-      {
-        "id": "step-1g-8",
-        "name": "Add focused file-to-gateway startup tests",
-        "evidence": "test/start-camera-gateway-from-file.test.ts covers four intended paths; full Phase 1 build and 14 test files with 78 tests pass"
+        "id": "phase-2-boundary-corrections",
+        "name": "Normalize origins and keep native status text out of errors",
+        "evidence": "Two focused files with 14 tests, full 22 files with 120 tests, and the production build pass"
       }
     ]
   },
   "lastCompletedCheckpoint": {
-    "id": "step-1g-8",
-    "name": "Phase 1 shared foundation complete",
-    "userConfirmedThrough": "step-1g-8",
+    "id": "phase-2-deterministic-complete",
+    "name": "Direct ISAPI deterministic vertical slice complete",
+    "userConfirmedThrough": "phase-2-boundary-corrections",
     "repositoryVerified": true,
-    "verifiedAt": "2026-09-03T14:47:00+08:00"
+    "verifiedAt": "2026-09-03T16:16:00+08:00"
   },
   "nextTask": {
-    "id": "step-2a",
-    "name": "Define and validate non-secret Hikvision ISAPI provider configuration",
+    "id": "step-3a",
+    "name": "Define PostgreSQL/TimescaleDB configuration and credential boundary",
     "scope": [
-      "wait for explicit Start Step 2A",
-      "define the non-secret ISAPI provider configuration contract",
-      "validate provider-owned configuration strictly",
-      "reference credentials without storing raw username or password"
+      "wait for explicit Start Step 3A",
+      "define bounded non-secret database connection settings",
+      "keep database credentials outside committed configuration",
+      "add deterministic configuration validation without opening a database connection"
     ],
     "excludeFromThisStep": [
-      "Digest HTTP client",
-      "live camera connection",
-      "people-counting XML parser",
-      "database",
+      "opening a database connection",
+      "running migrations",
       "API",
       "dashboard",
       "shadow or physical-camera fields"
     ]
   },
   "completedPhases": [
-    "phase-1-shared-foundation"
+    "phase-1-shared-foundation",
+    "phase-2-direct-hikvision-isapi-deterministic"
   ],
   "completedCheckpoints": [
     "step-1a-project-and-registration-contract",
@@ -118,10 +89,25 @@
     "step-1g-5-registration-coordinator",
     "step-1g-6-registration-coordinator-tests",
     "step-1g-7-file-to-gateway-composition",
-    "step-1g-8-startup-composition-tests"
+    "step-1g-8-startup-composition-tests",
+    "step-2a-1-isapi-config-contract",
+    "step-2a-2-isapi-config-schema",
+    "step-2a-3-isapi-config-validator",
+    "step-2a-4-isapi-config-tests",
+    "step-2b-1-isapi-credential-contract",
+    "step-2b-2-environment-credential-resolver",
+    "step-2b-3-credential-resolver-tests",
+    "step-2c-digest-xml-transport",
+    "step-2d-device-info-client",
+    "step-2e-counting-report-client",
+    "step-2f-counting-report-parser",
+    "step-2g-people-flow-collector",
+    "step-2h-adapter-provider",
+    "step-2i-deterministic-regression",
+    "step-2j-live-smoke-path",
+    "phase-2-boundary-corrections"
   ],
   "remainingPhases": [
-    "direct Hikvision ISAPI vertical slice",
     "TimescaleDB persistence, per-camera API, and dashboard",
     "HikCentral provider",
     "ONVIF capability discovery and provider",
@@ -129,16 +115,16 @@
   ],
   "blockers": [],
   "knownIssues": [
-    "Implement is not a Git repository",
+    "Phase 2 source/tests, dependency changes, pnpm build policy, and checkpoint documentation are uncommitted",
     "test TypeScript is transformed by Vitest but excluded from production tsc build",
     "minor indentation inconsistencies exist in hand-edited TypeScript",
-    "providerConfig needs strict provider-owned schemas",
+    "future providers still need strict provider-owned schemas",
     "application-level registration versus shutdown coordination is deferred"
   ],
   "pendingValidations": [
-    "non-secret Hikvision ISAPI provider configuration validation",
-    "real Hikvision ISAPI Digest connectivity",
-    "real periodic people-counting XML compatibility",
+    "successful live Hikvision ISAPI Digest connectivity",
+    "real device-information and periodic people-counting endpoint/XML compatibility",
+    "camera acceptance of previous-completed-UTC-hour report requests",
     "database persistence",
     "HTTP API and dashboard behaviour",
     "HikCentral deployed API compatibility",
@@ -154,20 +140,20 @@
     "tests": {
       "command": "pnpm test",
       "status": "passed",
-      "filesPassed": 14,
-      "testsPassed": 78
+      "filesPassed": 22,
+      "testsPassed": 120
     },
     "latestTargetedTests": {
-      "command": "pnpm test test/start-camera-gateway-from-file.test.ts",
+      "command": "pnpm test test/hikvision-isapi-http-client.test.ts test/hikvision-isapi-counting-report-parser.test.ts",
       "status": "passed",
-      "filesPassed": 1,
-      "testsPassed": 4
+      "filesPassed": 2,
+      "testsPassed": 14
     },
     "todoScan": {
       "status": "passed",
       "matches": 0
     },
-    "evidenceType": "deterministic software tests only"
+    "evidenceType": "deterministic software tests passed; live smoke path returned request-timeout while camera was down"
   },
   "relevantFiles": [
     "AGENTS.md",
@@ -203,7 +189,28 @@
     "src/startup/register-camera-inventory.ts",
     "test/register-camera-inventory.test.ts",
     "src/startup/start-camera-gateway-from-file.ts",
-    "test/start-camera-gateway-from-file.test.ts"
+    "test/start-camera-gateway-from-file.test.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-config.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-config-schema.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-config-validator.ts",
+    "test/hikvision-isapi-config-validator.test.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-credentials.ts",
+    "src/providers/hikvision-isapi/environment-hikvision-isapi-credential-resolver.ts",
+    "test/environment-hikvision-isapi-credential-resolver.test.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-http-client.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-device-info-client.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-counting-report-client.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-counting-report-parser.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-people-flow-collector.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-adapter.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-provider.ts",
+    "src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts",
+    "test/hikvision-isapi-http-client.test.ts",
+    "test/hikvision-isapi-counting-report-parser.test.ts",
+    "test/support/hikvision-counting-report-fixtures.ts",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml"
   ],
-  "latestVerifiedCommit": null
+  "latestVerifiedCommit": "c8501a8"
 }

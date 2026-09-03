@@ -136,6 +136,36 @@ Local inventory files are limited to one MiB, parsed as untrusted JSON, and pass
 
 Trusted registrations are attempted in inventory order to avoid an uncontrolled startup connection burst. A provider failure produces only `{ cameraId, status: "failed" }`, does not roll back earlier successful registrations, and does not prevent later registrations. Invalid file-level input rejects before registration, while valid inventory with camera-level failures resolves as `degraded`.
 
+## D-023: ISAPI provider configuration is non-secret and origin-only
+
+**Status:** Accepted.
+
+The initial direct-ISAPI configuration contains only `baseUrl`, provider-native `channelId`, and bounded `requestTimeoutMs`. The base URL must be an HTTP(S) origin without embedded credentials, endpoint path, query, fragment, or surrounding whitespace. Raw username/password remain outside inventory and are resolved later through the registration's `credentialRef`. Initial periodic collection mode and ISAPI endpoint paths are owned by code rather than configurable strings.
+
+## D-024: ISAPI credentials use explicit environment bindings
+
+**Status:** Accepted.
+
+The provider-specific resolver maps each non-secret `credentialRef` through an explicit trusted binding to username/password environment-variable names. It does not derive names by transforming the reference. Credential values exist only in runtime memory, and failures report safe reason codes without values.
+
+## D-025: Direct ISAPI XML transport is bounded and origin-confined
+
+**Status:** Accepted.
+
+The transport uses pinned `digest-fetch`/`node-fetch` dependencies, rejects redirects and request paths that can leave the configured normalized origin, applies request timeouts, limits declared and actual response sizes, and maps authentication, timeout, HTTP, network, size, and path failures into safe categories. pnpm permits only the required `esbuild` install script for the local TypeScript smoke runner.
+
+## D-026: First periodic request targets the previous completed UTC hour
+
+**Status:** Accepted provisionally pending live verification.
+
+The initial code-owned counting request targets one completed UTC hour and labels parsed observations as hourly. The parser enforces bounded match counts, safe integers, valid timestamps, exactly one-hour periods, and secret-safe status failures. Camera-local timezone support must not be added until the online device proves it is required.
+
+## D-027: ISAPI adapter owns initial collection and fixed polling
+
+**Status:** Accepted for the first vertical slice.
+
+`adapter.connect()` performs read-only device information and one report collection before becoming healthy, then starts a five-minute code-owned polling loop. Poll failures degrade health without terminating the loop. `disconnect()` aborts and awaits polling. The provider creates exactly one disconnected adapter for each matching logical registration and performs no network activity itself.
+
 ## Deferred decisions
 
 - Cross-field period-time validation.

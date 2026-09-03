@@ -4,11 +4,11 @@ Last audited: 2026-09-03 (Asia/Singapore)
 
 ## Current position
 
-- Current phase: Phase 1, shared foundation, complete for current scope.
-- Current step: Step 1G, safe inventory loading and startup composition, complete.
-- Last user-confirmed checkpoint: Step 1G.8, focused file-to-gateway startup tests.
-- Last repository-verified checkpoint: Stage 1G and Phase 1 complete; 14 test files and 78 tests pass, the production build passes, and no unfinished-code markers were found.
-- Exact next task: Phase 2, Step 2A, define and validate the non-secret Hikvision ISAPI provider configuration. Wait for the user to explicitly say `Start Step 2A`.
+- Current phase: Phase 2, direct Hikvision ISAPI vertical slice, in progress.
+- Current phase: Phase 2 direct Hikvision ISAPI vertical slice is complete for deterministic software scope.
+- Last user-confirmed and repository-verified checkpoint: Phase 2 boundary corrections complete; 2 targeted files/14 tests, 22 full files/120 tests, and the production build pass.
+- Live status: Step 2J safely returned `request-timeout` while the camera was down. Live Digest/device/report compatibility remains pending.
+- Exact next task: Step 3A, define the non-secret PostgreSQL/TimescaleDB configuration and local credential boundary. Wait for explicit `Start Step 3A`.
 
 ## Completed and verified
 
@@ -37,20 +37,30 @@ Last audited: 2026-09-03 (Asia/Singapore)
 | 1G.6 coordinator tests | `test/register-camera-inventory.test.ts` | Three focused tests; related coordinator/gateway run passes with 2 files and 11 tests |
 | 1G.7 file-to-gateway composition | `src/startup/start-camera-gateway-from-file.ts` | Validates the full file before delegating trusted registrations |
 | 1G.8 startup composition tests | `test/start-camera-gateway-from-file.test.ts` | Four focused tests; full Stage 1G suite passes with 14 files and 78 tests |
+| 2A.1 ISAPI config contract | `src/providers/hikvision-isapi/hikvision-isapi-config.ts` | Non-secret base URL, channel, timeout, and stable adapter-type constant |
+| 2A.2 ISAPI config schema | `src/providers/hikvision-isapi/hikvision-isapi-config-schema.ts` | Closed and bounded three-property runtime schema |
+| 2A.3 ISAPI config parser | `src/providers/hikvision-isapi/hikvision-isapi-config-validator.ts` | AJV structure plus safe HTTP(S)-origin semantics |
+| 2A.4 ISAPI config tests | `test/hikvision-isapi-config-validator.test.ts` | Ten focused tests; full suite passes with 15 files and 88 tests |
+| 2B.1 ISAPI credential contract | `src/providers/hikvision-isapi/hikvision-isapi-credentials.ts` | Provider-specific in-memory credential value and resolver boundary |
+| 2B.2 environment credential resolver | `src/providers/hikvision-isapi/environment-hikvision-isapi-credential-resolver.ts` | Explicit non-secret bindings, injected environment, and safe failure reasons |
+| 2B.3 credential resolver tests | `test/environment-hikvision-isapi-credential-resolver.test.ts` | Seven focused tests; both related ISAPI files pass with 17 tests and build passes |
+| 2C-2I direct ISAPI software slice | `src/providers/hikvision-isapi/`, focused tests and fixtures | Digest transport, device info, hourly request, parser, collector, adapter/provider and safe errors implemented; boundary suite passes with 22 files/120 tests and build passes |
+| 2J read-only smoke-check path | `hikvision-isapi-smoke-check.ts`, `isapiSmoke` script | Command executes and safely reports `request-timeout`; camera was down, so no live compatibility proof |
 
-Latest verification run on 2026-09-03 at the Stage 1G and Phase 1 boundary:
+Latest verification run on 2026-09-03 at the completed deterministic Phase 2 boundary:
 
-- `pnpm test`: 14 test files passed, 78 tests passed.
+- Targeted HTTP/parser correction run: 2 files passed, 14 tests passed.
+- `pnpm test`: 22 test files passed, 120 tests passed.
 - `pnpm build`: passed with TypeScript exit code 0.
 - TODO/FIXME/HACK/XXX scan: no matches in source, tests, or primary configuration.
 
 ## In progress
 
-No implementation task is currently in progress. Phase 1 is complete for its planned scope, and the project is waiting for explicit authorization to start Step 2A.
+No implementation task is currently in progress. Phase 2 deterministic work is complete and the project is waiting for explicit authorization to start Step 3A.
 
 ## Not started
 
-- Real Hikvision ISAPI configuration/client/parser/provider/adapter.
+- Successful live Hikvision ISAPI device/report compatibility validation while the camera is online.
 - HikCentral implementation.
 - ONVIF implementation.
 - Production/database-backed people-flow publication.
@@ -63,7 +73,7 @@ No implementation task is currently in progress. Phase 1 is complete for its pla
 
 ## Known issues and technical debt
 
-- This directory is not a Git repository. There is no branch, status, diff, commit history, or verified commit hash.
+- Git is available on `main` at `c8501a8`; Phase 2 source/tests, dependencies, pnpm policy, and checkpoint documentation remain uncommitted. Nothing was staged or committed by the agent.
 - `test/` is excluded from `tsconfig.json`; Vitest transforms tests, but `pnpm build` type-checks production `src/` only. Add a dedicated test type-check later.
 - Some recently hand-edited TypeScript has inconsistent indentation. Behaviour and compilation are unaffected; introduce formatting deliberately rather than mixing it into a functional step.
 - Base registration schema permits arbitrary provider-owned keys inside `providerConfig`; each future provider must enforce its own strict schema and secret policy.
@@ -72,4 +82,4 @@ No implementation task is currently in progress. Phase 1 is complete for its pla
 
 ## Evidence boundary
 
-All 78 tests use local deterministic software/test doubles. They prove contract, registry, lifecycle, isolation, rollback, canonical validation, normalization, retry-safe in-memory publication, bounded inventory loading, and isolated startup behaviour. They do not prove real camera reachability, Digest authentication, ISAPI report compatibility, HikCentral endpoints, ONVIF analytics, database persistence, API behaviour, or deployment.
+All 120 passing tests use local deterministic software/test doubles. The attempted live smoke path executed and safely classified a timeout while the camera was down; it does not prove reachability, Digest authentication, device information, counting-endpoint compatibility, UTC request acceptance, or real XML semantics. Those live claims remain pending until the camera is online.

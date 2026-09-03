@@ -10,10 +10,11 @@ The user writes implementation themselves with guided steps or coherent small ba
 
 ## Current status
 
-- Phase: Phase 1 shared foundation is complete for current scope.
-- Current implementation step: Step 1G safe inventory loading and startup composition is complete.
-- Last user-confirmed and repository-verified task: Step 1G.8. File-to-gateway composition and four focused tests exist; the full suite passes with 14 files/78 tests and `pnpm build` passes.
-- Exact next task: **Phase 2, Step 2A — define and validate non-secret Hikvision ISAPI provider configuration.** Wait for the user to explicitly say `Start Step 2A`.
+- Phase: Phase 2 direct Hikvision ISAPI vertical slice is in progress.
+- Current implementation phase: Phase 2 direct ISAPI slice is complete for deterministic software scope.
+- Last user-confirmed and repository-verified task: Phase 2 boundary corrections; targeted 2 files/14 tests, full 22 files/120 tests, and `pnpm build` pass.
+- Live status: the Step 2J read-only path safely returned `request-timeout` while the camera was down. No live Digest/device/report compatibility claim is established.
+- Exact next task: **Step 3A — define non-secret PostgreSQL/TimescaleDB configuration and its local credential boundary.** Wait for explicit `Start Step 3A`.
 
 ## Implemented architecture
 
@@ -48,13 +49,34 @@ Relevant production files:
 - `test/register-camera-inventory.test.ts`
 - `src/startup/start-camera-gateway-from-file.ts`
 - `test/start-camera-gateway-from-file.test.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-config.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-config-schema.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-config-validator.ts`
+- `test/hikvision-isapi-config-validator.test.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-credentials.ts`
+- `src/providers/hikvision-isapi/environment-hikvision-isapi-credential-resolver.ts`
+- `test/environment-hikvision-isapi-credential-resolver.test.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-http-client.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-device-info-client.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-counting-report-client.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-counting-report-parser.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-people-flow-collector.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-adapter.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-provider.ts`
+- `src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts`
+- `test/hikvision-isapi-*.test.ts`
+- `test/support/hikvision-counting-report-fixtures.ts`
+- `pnpm-workspace.yaml`
 
 Test doubles: `test/support/fake-camera-adapter.ts`, `test/support/fake-adapter-provider.ts`.
 
 ## Verification
 
-- `pnpm test`: 14 files, 78 tests passed on 2026-09-03.
+- `pnpm test`: 15 files, 88 tests passed on 2026-09-03.
 - `pnpm build`: passed on 2026-09-03.
+- Targeted Step 2B checkpoint: both related ISAPI test files passed, 2 files/17 tests, on 2026-09-03.
+- Phase 2 boundary deterministic verification: targeted 2 files/14 tests, full 22 files/120 tests, and production build passed on 2026-09-03.
+- Step 2J smoke path executed but returned safe `request-timeout` while the camera was down; no live-device claim is established.
 - Targeted Step 1G checkpoint: loader and inventory tests, 2 files/13 tests passed on 2026-09-03.
 - Targeted Step 1G coordinator checkpoint: coordinator and gateway-registration tests, 2 files/11 tests passed on 2026-09-03.
 - No TODO/FIXME/HACK/XXX markers found.
@@ -62,12 +84,12 @@ Test doubles: `test/support/fake-camera-adapter.ts`, `test/support/fake-adapter-
 
 ## Git state
 
-`D:\School\Degree\Y3S2 Internship\Project\VizAI\Implement` is not a Git repository. `git status`, `git diff`, branch, and recent commits are unavailable. Do not invent a commit/checkpoint hash. Ask before initializing Git because that is a separate project-management action.
+Git is available on branch `main`, tracking `origin/main`, at commit `c8501a8` (`chore: initialize VizAI camera integration project`). Phase 2 source/tests and dependency/configuration files are untracked or modified locally. Nothing has been staged or committed by the agent.
 
 ## Remaining phases
 
-1. Start Phase 2, Step 2A: non-secret ISAPI provider configuration and validation.
-2. Continue the direct read-only Hikvision ISAPI vertical slice: Digest device info, then periodic people-counting XML.
+1. Start Step 3A only after explicit user instruction, then build persistence/API/dashboard in the saved roadmap order.
+2. Repeat the read-only ISAPI smoke check when the camera is online; live validation may remain pending while later software phases continue.
 3. Add TimescaleDB persistence, per-camera API, and dashboard camera selector.
 4. Add HikCentral only after confirming deployed version/API/camera index code.
 5. Add ONVIF only after capability/event discovery; unsupported people flow is a valid outcome.
@@ -84,7 +106,7 @@ Test doubles: `test/support/fake-camera-adapter.ts`, `test/support/fake-adapter-
 
 ## Known issues / assumptions to verify
 
-- No Git history exists for this directory.
+- Current HEAD `c8501a8` does not include the untracked Step 2A files or current checkpoint documentation changes.
 - Tests are not included in production `tsc` type-checking.
 - Minor indentation inconsistencies exist in hand-edited files.
 - Database/server/deployment choices are not implemented; TimescaleDB/Fastify are planned candidates only.

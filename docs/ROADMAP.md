@@ -61,30 +61,29 @@ Status values are based on repository evidence as of 2026-09-03, not conversatio
 - Dedicated test TypeScript type-check configuration.
 - Formatting/linting conventions; current code has harmless indentation inconsistencies.
 
-## Phase 2: Direct Hikvision ISAPI vertical slice — not started
+## Phase 2: Direct Hikvision ISAPI vertical slice — complete for deterministic software scope
 
-Wait for the user's explicit `Start Step 2A` instruction.
-
-1. **Step 2A:** Define and validate ISAPI provider configuration without raw credentials.
-2. Resolve local environment credentials at composition time.
-3. Implement bounded HTTP Digest client.
-4. Perform read-only device-information connection proof.
-5. Implement periodic people-counting request/client.
-6. Parse sanitized XML into `PeriodicPeopleFlowObservation`.
-7. Normalize with the ISAPI logical `cameraId` and validate canonical output.
-8. Implement provider recipe and adapter lifecycle/health.
-9. Add fixtures and parser tests for valid, empty, malformed, unsupported, timeout, and authentication cases.
-10. Run a separately labelled read-only live smoke check.
-11. Defer live alert/event collection until periodic flow works and semantics are confirmed.
+1. **Step 2A complete:** Closed, bounded, non-secret ISAPI provider configuration.
+2. **Step 2B complete:** Explicit environment-backed credential-reference resolution with secret-safe errors.
+3. **Step 2C complete:** Bounded Digest XML transport with origin confinement, timeout, response-size, and safe error categories.
+4. **Step 2D complete:** Read-only device-information client and parser.
+5. **Step 2E complete:** Previous-completed-UTC-hour counting request/client.
+6. **Step 2F complete:** Namespace-tolerant counting XML parser into `PeriodicPeopleFlowObservation`.
+7. **Step 2G complete:** ISAPI observation normalization and publication under the ISAPI logical `cameraId`.
+8. **Step 2H complete:** Provider recipe and adapter connect/poll/disconnect/health lifecycle.
+9. **Step 2I complete:** Safe-error and boundary regressions; full suite passes with 22 files/120 tests and the build passes.
+10. **Step 2J implemented; live evidence pending:** The read-only smoke path executed and safely returned `request-timeout` while the camera was down. This proves failure classification only, not live Digest/device/report compatibility.
+11. Live alert/event collection remains intentionally deferred until periodic semantics are confirmed against the online camera.
 
 ## Phase 3: Persistence, API, and dashboard — not started
 
-1. Add PostgreSQL/TimescaleDB configuration and migrations.
-2. Persist canonical rows with `camera_id` and camera/time index.
-3. Implement per-camera query and analytics services.
-4. Add safe camera-list, health, latest/history, and overview APIs.
-5. Build dashboard camera selector and make every widget query the selected logical ID.
-6. Do not add implicit global aggregation.
+1. **Exact next — Step 3A:** Define the non-secret PostgreSQL/TimescaleDB configuration and local credential boundary. Wait for explicit `Start Step 3A`.
+2. Add initial migrations.
+3. Persist canonical rows with `camera_id` and camera/time index.
+4. Implement per-camera query and analytics services.
+5. Add safe camera-list, health, latest/history, and overview APIs.
+6. Build dashboard camera selector and make every widget query the selected logical ID.
+7. Do not add implicit global aggregation.
 
 ## Phase 4: HikCentral — not started
 

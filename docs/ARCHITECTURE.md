@@ -53,6 +53,20 @@ Implemented modules:
 | `test/register-camera-inventory.test.ts` | Ready/degraded, isolation, cleanup, and empty-startup proof | Step 1G.6 complete; 3 tests verified |
 | `src/startup/start-camera-gateway-from-file.ts` | File-to-gateway startup composition | Step 1G.7 complete |
 | `test/start-camera-gateway-from-file.test.ts` | Complete valid, degraded, invalid-inventory, and invalid-JSON startup proof | Step 1G.8 complete; 4 tests verified |
+| `src/providers/hikvision-isapi/hikvision-isapi-config.ts` | Trusted non-secret ISAPI provider settings and adapter-type constant | Step 2A.1 complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-config-schema.ts` | Closed and bounded runtime ISAPI configuration shape | Step 2A.2 complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-config-validator.ts` | AJV structural and URL-origin semantic validation | Step 2A.3 complete |
+| `test/hikvision-isapi-config-validator.test.ts` | Safe origin, credential exclusion, channel, timeout, and closed-schema proof | Step 2A.4 complete; 10 tests verified |
+| `src/providers/hikvision-isapi/hikvision-isapi-credentials.ts` | Provider-specific private credential and resolver contracts | Step 2B complete |
+| `src/providers/hikvision-isapi/environment-hikvision-isapi-credential-resolver.ts` | Explicit environment-variable bindings and secret-safe resolution | Step 2B complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-http-client.ts` | Origin-confined, timeout/size-bounded Digest XML transport | Steps 2C/2I complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-device-info-client.ts` | Read-only device-information request and safe parser | Step 2D complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-counting-report-client.ts` | Previous completed UTC-hour counting request | Step 2E complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-counting-report-parser.ts` | Native XML to provider-neutral hourly observations | Steps 2F/2I complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-people-flow-collector.ts` | Parser, normalizer, and output-port orchestration | Step 2G complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-adapter.ts` | Device proof, initial collection, fixed polling, health, and cleanup | Step 2H complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-provider.ts` | Registration/config/credentials to one disconnected runtime adapter | Step 2H complete |
+| `src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts` | Local read-only end-to-end smoke path with safe result reporting | Step 2J implemented; live success pending |
 | `src/adapters/camera-adapter.ts` | Shared adapter lifecycle interface | Complete |
 | `src/adapters/adapter-provider.ts` | Provider recipe interface | Complete |
 | `src/adapters/adapter-registry.ts` | Provider registration/selection and identity guard | Complete |
@@ -131,7 +145,13 @@ The observation interface, canonical measurement interface/schema, AJV parser/te
 
 The parser understands vendor-native data. The normalizer attaches the registration's logical `cameraId` and produces a canonical measurement. Source metadata remains diagnostic and does not affect camera grouping.
 
-## Planned provider boundaries
+## Provider boundaries
+
+The ISAPI configuration boundary accepts only an HTTP(S) origin, a safe provider-native channel ID, and a bounded request timeout. It rejects embedded URL credentials, endpoint paths, query strings, fragments, surrounding whitespace, and unknown fields. Raw credentials remain outside this contract and are resolved from `CameraRegistration.credentialRef` through explicit environment-variable bindings.
+
+The direct ISAPI flow is `registration -> provider config/credential resolution -> Digest XML client -> device/report clients -> native parser -> periodic observation -> camera-scoped normalizer -> output port`. Provider construction performs no network request. `adapter.connect()` performs a read-only device-information request and initial previous-hour collection, then starts a code-owned five-minute polling loop. A later poll failure marks the adapter degraded; disconnect aborts and waits for the loop.
+
+Deterministic tests prove this software behaviour. The attempted live smoke check timed out while the camera was down, so actual Digest authentication, device XML, report endpoint, UTC request acceptance, and report XML compatibility remain unverified.
 
 Each provider should own:
 
@@ -154,6 +174,6 @@ Shared core should own:
 
 ## Current exclusions
 
-The following do not exist in this project yet: real providers, HTTP server/process entrypoint, database-backed output, migrations, API, dashboard, authentication, deployment configuration, saved provider fixtures, and live smoke checks.
+The following do not exist in this project yet: database-backed output, PostgreSQL/TimescaleDB configuration and migrations, query/analytics services, HTTP API/server, dashboard, API authentication, deployment configuration, successful live ISAPI proof, HikCentral provider, and ONVIF provider. Live ISAPI alert/event collection is intentionally deferred.
 
 The adjacent reference project contains implementations of some of these concepts but is not the source tree for this guided reimplementation.

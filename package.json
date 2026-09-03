@@ -10,15 +10,21 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "isapiSmoke": "node --env-file=.env --import tsx src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts"
   },
   "packageManager": "pnpm@11.19.0",
   "devDependencies": {
     "@types/node": "^26.4.1",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.13",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
   },
   "dependencies": {
-    "ajv": "^8.20.0"
+    "ajv": "^8.20.0",
+    "digest-fetch": "3.1.1",
+    "node-fetch": "3.3.2",
+    "pg": "8.23.0"
   }
 }
