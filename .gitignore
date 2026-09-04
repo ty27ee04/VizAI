@@ -9,3 +9,5 @@ coverage/
 config/*.local.json
 
 *.log
+
+AGENTS.md
