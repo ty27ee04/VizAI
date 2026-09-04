@@ -75,19 +75,21 @@ Status values are based on repository evidence as of 2026-09-03, not conversatio
 10. **Step 2J implemented; live evidence pending:** The read-only smoke path executed and safely returned `request-timeout` while the camera was down. This proves failure classification only, not live Digest/device/report compatibility.
 11. Live alert/event collection remains intentionally deferred until periodic semantics are confirmed against the online camera.
 
-## Phase 3: Persistence, API, and dashboard — not started
+## Phase 3: Persistence, API, dashboard, and plugin installation — complete for current scope
 
-1. **Exact next — Step 3A:** Define the non-secret PostgreSQL/TimescaleDB configuration and local credential boundary. Wait for explicit `Start Step 3A`.
-2. Add initial migrations.
-3. Persist canonical rows with `camera_id` and camera/time index.
-4. Implement per-camera query and analytics services.
-5. Add safe camera-list, health, latest/history, and overview APIs.
-6. Build dashboard camera selector and make every widget query the selected logical ID.
-7. Do not add implicit global aggregation.
+1. **Step 3A complete:** Bounded PostgreSQL configuration and separate local credential parsing.
+2. **Step 3B complete:** Transactional, recorded TimescaleDB migration with hypertable and camera/time index.
+3. **Step 3C complete:** Parameterized retry-safe persistence of canonical rows containing `camera_id`.
+4. **Step 3D complete:** Required-camera latest/history queries and one-camera analytics overview.
+5. **Step 3E complete:** Safe camera-list, selected-camera health, latest/history, and overview APIs.
+6. **Step 3F complete:** Dashboard selector passes the selected logical ID to every widget request.
+7. **Step 3G complete:** Local composition root, ignored runtime configuration, local TimescaleDB schema verification, full tests, and build.
+8. No implicit global aggregation was added.
+9. **Step 3H complete:** trusted plugin contract, deterministic source/compiled loader, ISAPI plugin entry point, discovery-based registry/application composition, source integration tests, compiled smoke proof, focused regression, full regression, and build are verified.
 
 ## Phase 4: HikCentral — not started
 
-1. Verify local product/version and matching official API documentation.
+1. Verify the local HikCentral product/version and matching official API documentation after Step 3H is complete.
 2. Configure least-privilege read-only partner credentials locally.
 3. Discover real resource/camera index code and people-counting endpoint.
 4. Implement config, signed client, parser, adapter, provider, tests, and live smoke check.

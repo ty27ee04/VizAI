@@ -166,10 +166,47 @@ The initial code-owned counting request targets one completed UTC hour and label
 
 `adapter.connect()` performs read-only device information and one report collection before becoming healthy, then starts a five-minute code-owned polling loop. Poll failures degrade health without terminating the loop. `disconnect()` aborts and awaits polling. The provider creates exactly one disconnected adapter for each matching logical registration and performs no network activity itself.
 
+## D-028: Canonical people flow is stored in a TimescaleDB hypertable
+
+**Status:** Accepted.
+
+`people_flow_measurements` stores the complete canonical periodic contract. The primary key is `(id, observed_at)` because a TimescaleDB unique key must include the time partition, and `(camera_id, observed_at DESC)` supports the required camera-scoped reads.
+
+## D-029: Persistence uses parameterized retry-safe upserts
+
+**Status:** Accepted.
+
+`PostgresPeopleFlowOutputPort` implements the existing asynchronous output port. Runtime values are SQL parameters, and `(id, observed_at)` conflicts update retry-varying receive/count/source fields without combining logical cameras.
+
+## D-030: Data queries always require one logical camera
+
+**Status:** Accepted.
+
+History, latest, analytics, health, and dashboard widget paths require or carry one `cameraId`. The analytics identity guard rejects repository leakage from another camera. No all-camera data aggregation endpoint exists.
+
+## D-031: The initial HTTP/dashboard surface is local-only
+
+**Status:** Accepted for Phase 3.
+
+Fastify serves safe camera-list, selected-camera health, latest/history, overview, and static dashboard routes. The dashboard writes dynamic values using `textContent`. `src/application.ts` binds to `127.0.0.1` because authentication and remote-production controls are deferred.
+
+## D-032: Database configuration and credentials remain separate
+
+**Status:** Accepted.
+
+Bounded host/port/database/pool/timeout/SSL settings are parsed separately from username/password. Local secrets live only in ignored environment files and are never returned by API errors or startup reports.
+
+## D-033: Brand providers use automatic trusted-folder plugin discovery
+
+**Status:** Accepted and implemented in Step 3H.
+
+Each immediate `src/providers/<plugin-id>/` folder exposes one `plugin.ts` development entry point and compiled `plugin.js` production entry point. Discovery loads this entry point, validates that `pluginId` matches the folder, and obtains one or more disconnected `AdapterProvider` recipes. The plugin owns assembly of its brand-specific provider, adapter, clients, parsers, configuration, and credential resolver; the loader does not scan those classes independently.
+
+Discovery order is deterministic and invalid exports, duplicate plugin IDs, duplicate adapter types, and empty provider lists fail startup safely. Only trusted local plugin folders are supported because imported code executes during startup. This adds installation extensibility without importing the original project's physical-camera, authority/shadow, or source-arbitration design.
+
 ## Deferred decisions
 
 - Cross-field period-time validation.
-- Database/runtime server dependencies and migration design, though PostgreSQL/TimescaleDB and Fastify are expected candidates.
 - API authentication, deployment host, TLS/reverse proxy, CORS, and production observability.
 - Explicit semantics for any future aggregate across logical registrations that observe the same scene.
 - Live people-counting event semantics and whether they belong in the first ISAPI provider.

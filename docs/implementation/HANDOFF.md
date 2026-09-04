@@ -1,114 +1,74 @@
 # Recovery Handoff
 
-Last audited: 2026-09-03 (Asia/Singapore)
+Last audited: 2026-09-03 21:46 (Asia/Singapore)
 
 ## Purpose and critical rule
 
-This is a from-zero, guided TypeScript implementation of a VizAI multi-camera gateway. The same physical Hikvision device will be registered as three independent logical cameras (`hikvision-isapi`, `hikcentral`, `onvif`) with three unique `cameraId` values. Database/API/dashboard must distinguish them by `cameraId`. There is no `physicalCameraId`, shadow mode, authority selection, or source arbitration.
-
-The user writes implementation themselves with guided steps or coherent small batches. Inspect and verify their work before advancing and apply the efficient checkpoint policy in `AGENTS.md`: small steps receive targeted validation and minimum state updates, while meaningful checkpoints and stage boundaries receive broader validation and synchronized recovery state. At a parent-step boundary, summarize and wait for an explicit `Start Step ...`. Do not restart, redesign, copy the adjacent reference project wholesale, or silently replace working code.
+This is a guided TypeScript implementation of a VizAI multi-camera gateway. One physical Hikvision device may be registered as three unrelated logical cameras for ISAPI, HikCentral, and ONVIF. `cameraId` remains distinct through gateway, normalized measurements, database rows, API queries/responses, and dashboard selection. Never add physical grouping, shadow/authority roles, arbitration, cross-provider copying, or an implicit all-camera total.
 
 ## Current status
 
-- Phase: Phase 2 direct Hikvision ISAPI vertical slice is in progress.
-- Current implementation phase: Phase 2 direct ISAPI slice is complete for deterministic software scope.
-- Last user-confirmed and repository-verified task: Phase 2 boundary corrections; targeted 2 files/14 tests, full 22 files/120 tests, and `pnpm build` pass.
-- Live status: the Step 2J read-only path safely returned `request-timeout` while the camera was down. No live Digest/device/report compatibility claim is established.
-- Exact next task: **Step 3A — define non-secret PostgreSQL/TimescaleDB configuration and its local credential boundary.** Wait for explicit `Start Step 3A`.
+- Phase 3 is complete for local deterministic/database scope, including automatic trusted-folder brand-plugin discovery.
+- Last completed task: Steps 3H.1-3H.10 and the Phase 3 boundary, verified against source, focused tests, compiled output, full tests, and build.
+- Current/in-progress task: none.
+- Exact next task: **Phase 4 / Step 4A — identify the deployed HikCentral product/version and matching official API surface**. Do not start until the user explicitly says `Start Step 4`.
 
-## Implemented architecture
+## Implemented runtime flow
 
-`unknown registration -> AJV parser -> CameraGateway -> AdapterRegistry -> AdapterProvider.validateConfig/create -> CameraAdapter.connect/discover -> registered map keyed by cameraId`.
+`trusted provider folders -> plugin discovery -> AdapterRegistry -> local inventory -> CameraGateway -> discovered HikvisionIsapiAdapterProvider -> ISAPI client/parser -> PeriodicPeopleFlowNormalizer -> canonical validation -> PostgresPeopleFlowOutputPort -> TimescaleDB -> camera-scoped query repository -> analytics -> Fastify API -> dashboard selector`.
 
-Gateway also implements independent health, unregister, failure rollback, duplicate/concurrency guards, and multi-camera shutdown with safe failed-ID reporting.
+Important Phase 3 files:
 
-Relevant production files:
+- `src/database/postgres-config.ts`, `postgres-pool.ts`, `run-database-migrations.ts`
+- `src/database/migrations/001-create-people-flow.ts`
+- `src/output/postgres-people-flow-output-port.ts`
+- `src/query/people-flow-query.ts`, `people-flow-query-port.ts`, `postgres-people-flow-query-repository.ts`
+- `src/analytics/people-flow-analytics-service.ts`
+- `src/api/create-api-server.ts`
+- `src/dashboard/dashboard-assets.ts`, `create-dashboard-server.ts`
+- `src/application.ts`
+- six matching Phase 3 test files under `test/`
+- `src/providers/adapter-provider-plugin.ts`, `discover-adapter-providers.ts`
+- `src/providers/hikvision-isapi/plugin.ts`
+- `src/startup/create-adapter-registry-from-plugins.ts`
+- `src/providers/plugin-discovery-smoke-check.ts`
+- `test/discover-adapter-providers.test.ts`, `hikvision-isapi-plugin.test.ts`, `installed-provider-discovery.test.ts`
 
-- `src/contracts/camera-registration.ts`
-- `src/contracts/camera-registration-schema.ts`
-- `src/contracts/camera-registration-validator.ts`
-- `src/contracts/camera-inventory-validator.ts`
-- `src/adapters/camera-adapter.ts`
-- `src/adapters/adapter-provider.ts`
-- `src/adapters/adapter-registry.ts`
-- `src/core/camera-gateway.ts`
-- `src/observations/periodic-people-flow-observation.ts`
-- `src/contracts/people-flow-measurement.ts`
-- `src/contracts/people-flow-measurement-schema.ts`
-- `src/contracts/people-flow-measurement-validator.ts`
-- `src/core/periodic-people-flow-normalizer.ts`
-- `test/periodic-people-flow-normalizer.test.ts`
-- `src/output/people-flow-output-port.ts`
-- `src/output/in-memory-people-flow-output-port.ts`
-- `test/in-memory-people-flow-output-port.test.ts`
-- `.gitignore`
-- `src/config/camera-inventory-file-loader.ts`
-- `test/camera-inventory-file-loader.test.ts`
-- `src/startup/camera-startup-report.ts`
-- `src/startup/register-camera-inventory.ts`
-- `test/register-camera-inventory.test.ts`
-- `src/startup/start-camera-gateway-from-file.ts`
-- `test/start-camera-gateway-from-file.test.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-config.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-config-schema.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-config-validator.ts`
-- `test/hikvision-isapi-config-validator.test.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-credentials.ts`
-- `src/providers/hikvision-isapi/environment-hikvision-isapi-credential-resolver.ts`
-- `test/environment-hikvision-isapi-credential-resolver.test.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-http-client.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-device-info-client.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-counting-report-client.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-counting-report-parser.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-people-flow-collector.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-adapter.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-provider.ts`
-- `src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts`
-- `test/hikvision-isapi-*.test.ts`
-- `test/support/hikvision-counting-report-fixtures.ts`
-- `pnpm-workspace.yaml`
+## Critical Phase 3 decisions
 
-Test doubles: `test/support/fake-camera-adapter.ts`, `test/support/fake-adapter-provider.ts`.
+- TimescaleDB table: `people_flow_measurements`.
+- Hypertable time column: `observed_at`.
+- Primary key: `(id, observed_at)`; retry upserts use the same conflict target.
+- Query index: `(camera_id, observed_at DESC)`.
+- Latest/history/overview and selected health paths require one logical camera.
+- Database/API errors do not expose underlying secret/provider details.
+- Dashboard uses `textContent`, not `innerHTML`, for runtime values.
+- Server binds to `127.0.0.1` while authentication is absent.
 
 ## Verification
 
-- `pnpm test`: 15 files, 88 tests passed on 2026-09-03.
-- `pnpm build`: passed on 2026-09-03.
-- Targeted Step 2B checkpoint: both related ISAPI test files passed, 2 files/17 tests, on 2026-09-03.
-- Phase 2 boundary deterministic verification: targeted 2 files/14 tests, full 22 files/120 tests, and production build passed on 2026-09-03.
-- Step 2J smoke path executed but returned safe `request-timeout` while the camera was down; no live-device claim is established.
-- Targeted Step 1G checkpoint: loader and inventory tests, 2 files/13 tests passed on 2026-09-03.
-- Targeted Step 1G coordinator checkpoint: coordinator and gateway-registration tests, 2 files/11 tests passed on 2026-09-03.
-- No TODO/FIXME/HACK/XXX markers found.
-- All evidence is deterministic software evidence; no live provider/device/database/API proof exists.
+- Phase 3 targeted tests: 6 files, 22 tests passed.
+- Step 3H focused regression: 4 files, 22 tests passed.
+- Compiled discovery smoke: passed; `hikvision-isapi` discovered with zero camera connections attempted.
+- Full suite: 31 files, 156 tests passed.
+- `pnpm build`: passed.
+- Local TimescaleDB: version 2.29.1 reachable; migration record, hypertable, required non-null `camera_id`, and camera/time index confirmed read-only. The table has zero rows while the camera is down, so real camera-to-database publication remains pending.
+- `.env` and `config/cameras.local.json` confirmed ignored.
+- Live camera validation remains pending because the camera is down.
 
 ## Git state
 
-Git is available on branch `main`, tracking `origin/main`, at commit `c8501a8` (`chore: initialize VizAI camera integration project`). Phase 2 source/tests and dependency/configuration files are untracked or modified locally. Nothing has been staged or committed by the agent.
+- Branch: `main`, tracking `origin/main`.
+- HEAD: `ea51558` (`Phase 2 done without real camera test`).
+- Phase 3 source/tests plus `.env.example`, `package.json`, and `pnpm-lock.yaml` are modified/untracked and not committed by the agent.
 
-## Remaining phases
+## Known limitations / next phases
 
-1. Start Step 3A only after explicit user instruction, then build persistence/API/dashboard in the saved roadmap order.
-2. Repeat the read-only ISAPI smoke check when the camera is online; live validation may remain pending while later software phases continue.
-3. Add TimescaleDB persistence, per-camera API, and dashboard camera selector.
-4. Add HikCentral only after confirming deployed version/API/camera index code.
-5. Add ONVIF only after capability/event discovery; unsupported people flow is a valid outcome.
-6. Production hardening and live validation.
-
-## Do not forget
-
-- Never put raw secrets in registration JSON, fixtures, docs, logs, or chat.
-- One provider recipe creates one disconnected adapter per registration; connection happens later.
-- Normalizer, not parser, attaches logical `cameraId`.
-- Never copy observations between integrations or manufacture unsupported analytics.
-- Never implicitly sum the three logical camera IDs.
-- Tests do not prove real-device compatibility.
-
-## Known issues / assumptions to verify
-
-- Current HEAD `c8501a8` does not include the untracked Step 2A files or current checkpoint documentation changes.
-- Tests are not included in production `tsc` type-checking.
-- Minor indentation inconsistencies exist in hand-edited files.
-- Database/server/deployment choices are not implemented; TimescaleDB/Fastify are planned candidates only.
-- Application-level exclusion of new registrations during shutdown remains to be designed with the composition root.
-- Actual HikCentral and ONVIF capabilities must be verified against local deployments/devices.
+- The application now composes `AdapterRegistry` from trusted-folder plugin discovery; it no longer imports the Hikvision provider/resolver directly.
+- Installed plugin code is trusted executable startup code, not a sandboxed third-party extension mechanism.
+- The ISAPI plugin currently requires its credential-reference environment binding during composition even when no ISAPI registration is present; revisit optional activation/configuration before multiple plugins are installed.
+- Phase 4 HikCentral must start with deployed-version and official-API discovery; `cameraIndexCode` must come from real resource data and is not a VizAI camera ID.
+- Phase 5 ONVIF must start with capability discovery; people flow may truthfully be unsupported.
+- API authentication, remote exposure, CORS, TLS, rate limiting, backups, observability, and production operations are deferred to Phase 6.
+- Test sources are not included in production `tsc` type-checking.
+- Repeat safe ISAPI live validation when the device returns online.

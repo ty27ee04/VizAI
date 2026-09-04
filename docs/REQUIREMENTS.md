@@ -42,6 +42,11 @@ Runtime validation must reject malformed input and unexpected top-level fields. 
 5. `provider.create()` creates one disconnected adapter. It must not perform network activity.
 6. The registry rejects malformed provider keys, duplicate providers, unknown adapters, and adapters that return a different `cameraId`.
 7. The registry is extensible and must not contain vendor-specific conditional branches.
+8. Startup must automatically discover brand plugins from immediate `src/providers/<plugin-id>/` folders through a single `plugin.ts` development entry point or compiled `plugin.js` entry point.
+9. A plugin entry point creates reusable provider recipes only. It must not connect to a camera during discovery.
+10. The brand folder owns its adapter, clients, parsers, configuration, credential resolution, provider recipe, and plugin entry point. Discovery must not scan adapter/client/parser classes independently.
+11. Discovery must be deterministic and reject invalid plugin exports, folder/plugin ID mismatches, duplicate plugin IDs, empty provider lists, invalid provider recipes, and duplicate adapter types.
+12. Only trusted local provider folders may be discovered because dynamically imported plugin code executes during application startup.
 
 ### Gateway lifecycle
 
@@ -76,14 +81,16 @@ Initial scope is periodic hourly people flow with `entered` and `exited` counts.
 
 Canonical measurement IDs must include or otherwise be scoped by `cameraId`, so equal source periods from the three logical registrations do not collide.
 
-### Database and query requirements (planned, not implemented)
+### Database and query requirements (implemented in Phase 3)
 
 1. Persist canonical people-flow measurements with `camera_id` and a camera/time index.
 2. Every query and analytic calculation must filter by one requested `cameraId` unless an explicit aggregate feature is later approved.
 3. Do not implicitly sum ISAPI, HikCentral, and ONVIF registrations; doing so would count one physical scene multiple times.
-4. Database choice is planned as PostgreSQL/TimescaleDB to match the surrounding VizAI work, but no schema, migration, repository, or live database exists in this project yet.
+4. PostgreSQL/TimescaleDB stores canonical hourly measurements in `people_flow_measurements`; the hypertable primary key includes `observed_at`, and a `(camera_id, observed_at DESC)` index supports camera-scoped history/latest queries.
+5. Database settings are bounded separately from credentials. Local credentials remain in ignored environment files.
+6. Deterministic publication uses a parameterized upsert, and database rows are revalidated when mapped back into the canonical contract.
 
-### API and dashboard requirements (planned, not implemented)
+### API and dashboard requirements (implemented in Phase 3 for local use)
 
 1. Provide a camera-list endpoint returning safe camera summaries.
 2. Analytics endpoints require a `cameraId`, for example `GET /v1/analytics/overview?cameraId=...&from=...&to=...`.
@@ -91,6 +98,7 @@ Canonical measurement IDs must include or otherwise be scoped by `cameraId`, so 
 4. The dashboard uses a logical camera selector (ISAPI/HikCentral/ONVIF registrations), not a source/shadow selector.
 5. Changing the selected camera must update all widgets using that camera ID.
 6. No global all-camera total should be added until duplicate-scene semantics are explicitly decided.
+7. The initial server binds to `127.0.0.1`; authentication, remote exposure, CORS, and TLS remain production-hardening work.
 
 ### ISAPI requirements (next provider phase; not implemented)
 
@@ -143,6 +151,6 @@ Passing software tests does not prove credentials, network reachability, firmwar
 ## Assumptions and unresolved questions
 
 - The development device is Hikvision and may be reachable through direct ISAPI, HikCentral, and ONVIF, but only ISAPI behaviour has historical evidence in the adjacent reference project; none is live-verified in this new project.
-- Database, server framework, API authentication, CORS, HTTPS/reverse proxy, deployment host, and dashboard framework are not yet implemented. PostgreSQL/TimescaleDB and Fastify are likely choices but must be introduced only at their planned checkpoints.
+- PostgreSQL/TimescaleDB persistence, Fastify API routes, and the framework-free dashboard are implemented and locally validated. API authentication, CORS, HTTPS/reverse proxy, and production deployment remain unresolved.
 - The product behaviour for an intentional aggregate across logical registrations observing the same physical scene is unresolved. Default behaviour is per-camera selection with no implicit aggregate.
 - Test TypeScript under `test/` is transformed by Vitest but excluded from the current production `tsc` build; adding a dedicated test type-check configuration is technical debt.

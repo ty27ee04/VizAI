@@ -26,16 +26,25 @@ flowchart LR
     Schema[AJV registration schema]
     Inventory[Inventory validation and duplicate check]
     Startup[Independent startup coordinator]
+    Discovery[Trusted-folder plugin discovery]
     Registry[AdapterRegistry]
     Provider[AdapterProvider recipe]
     Adapter[CameraAdapter instance]
     Gateway[CameraGateway]
+    Output[PostgresPeopleFlowOutputPort]
+    Timescale[(TimescaleDB hypertable)]
+    Query[Camera-scoped query repository]
+    API[Fastify API]
+    Dashboard[Dashboard selector]
 
     File --> Loader --> Inventory
     Inventory --> Schema
     Inventory --> Startup --> Gateway
+    Discovery --> Registry
     Gateway --> Registry --> Provider --> Adapter
     Gateway -->|connect, discover, health, unregister, shutdown| Adapter
+    Adapter -->|canonical people.flow| Output --> Timescale
+    Timescale --> Query --> API --> Dashboard
 ```
 
 Implemented modules:
@@ -67,6 +76,11 @@ Implemented modules:
 | `src/providers/hikvision-isapi/hikvision-isapi-adapter.ts` | Device proof, initial collection, fixed polling, health, and cleanup | Step 2H complete |
 | `src/providers/hikvision-isapi/hikvision-isapi-provider.ts` | Registration/config/credentials to one disconnected runtime adapter | Step 2H complete |
 | `src/providers/hikvision-isapi/hikvision-isapi-smoke-check.ts` | Local read-only end-to-end smoke path with safe result reporting | Step 2J implemented; live success pending |
+| `src/providers/adapter-provider-plugin.ts` | Trusted brand-plugin entry-point contract | Step 3H complete |
+| `src/providers/discover-adapter-providers.ts` | Deterministic source/compiled plugin discovery and validation | Step 3H complete |
+| `src/providers/hikvision-isapi/plugin.ts` | ISAPI plugin assembly boundary | Step 3H complete |
+| `src/startup/create-adapter-registry-from-plugins.ts` | Registry composition from discovered provider recipes | Step 3H complete |
+| `src/providers/plugin-discovery-smoke-check.ts` | Compiled discovery proof without camera connections | Step 3H complete |
 | `src/adapters/camera-adapter.ts` | Shared adapter lifecycle interface | Complete |
 | `src/adapters/adapter-provider.ts` | Provider recipe interface | Complete |
 | `src/adapters/adapter-registry.ts` | Provider registration/selection and identity guard | Complete |
@@ -80,6 +94,13 @@ Implemented modules:
 | `src/output/people-flow-output-port.ts` | Replaceable asynchronous canonical publication boundary | Step 1F.8 complete; compile-only interface |
 | `src/output/in-memory-people-flow-output-port.ts` | Retry-safe in-memory publication proof with per-camera reads | Step 1F.9 complete |
 | `test/in-memory-people-flow-output-port.test.ts` | Camera isolation, replacement, and defensive-copy proof | Step 1F.10 complete; 5 tests verified |
+| `src/database/` | Bounded configuration, credential boundary, pool, TimescaleDB migration, and migration runner | Step 3A/3B complete |
+| `src/output/postgres-people-flow-output-port.ts` | Parameterized canonical upsert keyed by measurement ID and observed time | Step 3C complete |
+| `src/query/` | Required-camera query validation and PostgreSQL latest/history repository | Step 3D complete |
+| `src/analytics/people-flow-analytics-service.ts` | One-camera overview totals with identity guard | Step 3D complete |
+| `src/api/create-api-server.ts` | Safe camera list, selected-camera health, latest, history, and overview routes | Step 3E complete |
+| `src/dashboard/` | Local dashboard and selector; every widget request carries one logical camera ID | Step 3F complete |
+| `src/application.ts` | Local composition root for migration, provider startup, storage, query, API, dashboard, and cleanup | Step 3G complete |
 
 Test doubles live under `test/support/` and are not production providers. They provide deterministic clocks, lifecycle counters, controlled failures, and connect/disconnect gates.
 
@@ -119,7 +140,7 @@ The gateway reserves pending IDs before its first asynchronous operation, preven
 
 Unregister removes a camera only after `disconnect()` succeeds. Shutdown attempts every registered logical camera independently; successfully cleaned cameras are removed and failed IDs remain known for retry. The application composition root must eventually stop new registrations before shutdown begins.
 
-## People-flow target architecture
+## People-flow implemented architecture
 
 ```mermaid
 flowchart LR
@@ -141,7 +162,7 @@ flowchart LR
     Normalizer --> Contract --> Output --> Storage --> Analytics --> API --> UI
 ```
 
-The observation interface, canonical measurement interface/schema, AJV parser/tests, deterministic normalizer/tests, output publication interface, and in-memory output proof exist today. Database storage, analytics, API, and UI remain planned.
+The complete local path exists: ISAPI observations are normalized and validated, published through the PostgreSQL output adapter, stored in the TimescaleDB hypertable, queried only with a logical `cameraId`, exposed through Fastify, and displayed through a selected-camera dashboard. The in-memory output remains a deterministic test adapter.
 
 The parser understands vendor-native data. The normalizer attaches the registration's logical `cameraId` and produces a canonical measurement. Source metadata remains diagnostic and does not affect camera grouping.
 
@@ -172,8 +193,16 @@ Shared core should own:
 - persistence/query abstractions;
 - API models that use logical `cameraId`.
 
+## Automatic brand-plugin discovery — complete for current scope
+
+The shared plugin contract and deterministic trusted-folder discovery loader are implemented and verified. Each immediate `src/providers/<plugin-id>/` folder can expose one `plugin.ts` entry point during TypeScript development and one compiled `plugin.js` entry point after build. Discovery scans folders in deterministic order, validates the exported plugin contract, calls it to create disconnected `AdapterProvider` recipes, and returns those recipes for `AdapterRegistry`.
+
+The plugin is the public installation boundary for the whole brand integration. Its internal provider assembles that brand's adapter, clients, parsers, configuration validator, and credential resolver. The loader will not discover those internal classes separately. Dynamic imports are restricted to trusted local provider folders.
+
+The Hikvision ISAPI folder now exposes its plugin entry point. The application builds its registry from discovered provider recipes instead of directly importing the ISAPI provider. Focused source tests and a compiled smoke check prove discovery without contacting a camera; they do not prove live device compatibility.
+
 ## Current exclusions
 
-The following do not exist in this project yet: database-backed output, PostgreSQL/TimescaleDB configuration and migrations, query/analytics services, HTTP API/server, dashboard, API authentication, deployment configuration, successful live ISAPI proof, HikCentral provider, and ONVIF provider. Live ISAPI alert/event collection is intentionally deferred.
+The following do not exist in this project yet: API authentication, remote/production deployment configuration, successful live ISAPI proof, HikCentral provider, and ONVIF provider. Live ISAPI alert/event collection is intentionally deferred. The local API binds to `127.0.0.1`; production exposure, CORS, TLS/reverse proxy, rate limiting, backups, and observability remain Phase 6 work.
 
 The adjacent reference project contains implementations of some of these concepts but is not the source tree for this guided reimplementation.

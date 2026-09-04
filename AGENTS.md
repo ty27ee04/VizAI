@@ -5,7 +5,7 @@ This repository is a clean, guided reimplementation of the VizAI multi-camera in
 ## Collaboration protocol
 
 - The user is implementing the project themselves with step-by-step guidance.
-- Give one narrow, named step at a time, explain why it exists, and wait for the user to complete it.
+- Give narrow, named steps or a coherent user-requested batch, explain why each exists, and wait for the user to complete the supplied work.
 - After the user reports completion, inspect the actual file and run proportionate tests/build checks before marking it complete.
 - After verifying a completed substep, apply the Efficient Checkpoint and Validation Policy below. Record only the minimum persistent state needed for a small step, then immediately provide the next small substep when it remains inside the same parent step (for example, Step 1F.2 to Step 1F.3).
 - At a parent-step boundary (for example, Step 1F to Step 1G), stop after the checkpoint summary and wait for the user to explicitly say `Start Step 1G`.
@@ -23,6 +23,7 @@ This repository is a clean, guided reimplementation of the VizAI multi-camera in
 - Every provider must report only data obtained through its own integration. Never copy ISAPI values into HikCentral/ONVIF results or manufacture unsupported ONVIF analytics.
 - Provider recipes are registered once. `provider.create(registration)` creates exactly one disconnected adapter for each logical registration; network work begins in `adapter.connect()`.
 - New providers plug into `AdapterRegistry`; do not add a central vendor `if/else` chain.
+- Brand integrations must be installable through automatic discovery of one trusted `plugin.ts`/compiled `plugin.js` entry point in each immediate `src/providers/<plugin-id>/` folder. The plugin owns and assembles that brand's provider, adapter, clients, and parsers; do not scan or instantiate those internal classes independently.
 
 ## Context Compaction / Recovery Protocol
 
